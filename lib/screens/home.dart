@@ -61,7 +61,7 @@ class _HomeState extends State<Home> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: size40,
-                          color: Theme.of(context).primaryColor,
+                          color: colorWhite,
                         ),
                       ),
                       SizedBox(height: size10),
@@ -163,6 +163,10 @@ class _HomeState extends State<Home> {
                     Radius.circular(15),
                   ),
                   child: ListTile(
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: size13,
+                        vertical: size5,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
@@ -173,30 +177,44 @@ class _HomeState extends State<Home> {
                               : highRed,
                       title: Text(
                         task.title,
+                        maxLines: 2,
                         style: TextStyle(
+                          fontWeight: FontWeight.w600,
                           color: colorWhite,
-                          fontSize: size20,
+                          fontSize: size18,
                           decoration: TextDecoration.none,
                         ),
-                        maxLines: 5,
                       ),
                       subtitle: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Divider(),
+                          Divider(color: colorGrey300),
                           Text(
-                            '${_dateFormatter.format(task.date)}',
+                            '${task.description}',
                             style: TextStyle(
-                              color: colorGrey500,
+                              fontWeight: FontWeight.w500,
+                              color: colorGrey300,
                               fontSize: size15,
                               decoration: TextDecoration.none,
                             ),
                           ),
+                          SizedBox(height: size5),
+                          Text(
+                            '${task.date}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              color: colorGrey300,
+                              fontSize: size15,
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
+                          SizedBox(height: 3),
                           Text(
                             '${task.priority}',
                             style: TextStyle(
-                              color: colorGrey500,
+                              fontWeight: FontWeight.w500,
+                              color: colorGrey300,
                               // color: task.priority == 'Low'
                               //     ? lowGreen
                               //     : task.priority == 'Medium'
@@ -208,14 +226,17 @@ class _HomeState extends State<Home> {
                           ),
                         ],
                       ),
-                      trailing: Checkbox(
-                        activeColor: colorBlack,
-                        value: task.status == 1 ? true : false,
-                        onChanged: (value) {
-                          task.status = value ? 1 : 0;
-                          DatabaseHelper.instance.updateTask(task);
-                          _updateTasksList();
-                        },
+                      trailing: Transform.scale(
+                        scale: 1.1,
+                        child: Checkbox(
+                          activeColor: colorBlack,
+                          value: task.status == 1 ? true : false,
+                          onChanged: (value) {
+                            task.status = value ? 1 : 0;
+                            DatabaseHelper.instance.updateTask(task);
+                            _updateTasksList();
+                          },
+                        ),
                       ),
                       onTap: () {
                         Navigator.push(
@@ -231,17 +252,22 @@ class _HomeState extends State<Home> {
               : ClipRRect(
                   //deActive
                   borderRadius: BorderRadius.all(
-                    Radius.circular(20),
+                    Radius.circular(15),
                   ),
                   child: ListTile(
-                    // enabled: task.status == 0 ? true : false,
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: size13,
+                      vertical: size5,
+                    ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(15),
                     ),
                     tileColor: colorBlack,
                     title: Text(
                       task.title,
+                      maxLines: 1,
                       style: TextStyle(
+                        fontWeight: FontWeight.w600,
                         color: task.status == 0 ? colorWhite : colorGrey500,
                         fontSize: size18,
                         decoration: TextDecoration.lineThrough,
@@ -251,17 +277,22 @@ class _HomeState extends State<Home> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Divider(color: colorGrey300),
+                        SizedBox(height: size5),
                         Text(
-                          '${_dateFormatter.format(task.date)}',
+                          '${task.date}',
                           style: TextStyle(
+                            fontWeight: FontWeight.w500,
                             color: colorGrey500,
                             fontSize: size15,
                             decoration: TextDecoration.lineThrough,
                           ),
                         ),
+                        SizedBox(height: 3),
                         Text(
                           '${task.priority}',
                           style: TextStyle(
+                            fontWeight: FontWeight.w500,
                             color: colorGrey500,
                             // color: task.priority == 'Low'
                             //     ? lowGreen
@@ -274,23 +305,19 @@ class _HomeState extends State<Home> {
                         ),
                       ],
                     ),
-                    trailing: Checkbox(
-                      activeColor: Colors.red.withOpacity(0.0),
-                      value: task.status == 1 ? true : false,
-                      onChanged: (value) {},
+                    trailing: Transform.scale(
+                      scale: 1.3,
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.delete_forever_rounded,
+                          color: colorWhite,
+                        ),
+                        onPressed: () {
+                          DatabaseHelper.instance.deleteTask(task.id);
+                          _updateTasksList();
+                        },
+                      ),
                     ),
-                    onTap: () {
-                      if (task.status == 0) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => AddTaskScreen(
-                              task: task,
-                            ),
-                          ),
-                        ).then((value) => this.setState(() {}));
-                      }
-                    },
                     onLongPress: () {
                       if (task.status == 1) {
                         task.status = 0;

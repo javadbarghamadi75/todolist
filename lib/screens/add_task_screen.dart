@@ -17,33 +17,61 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   final _formKey = GlobalKey<FormState>();
   String _title = '';
   String _priority;
-  DateTime _date = DateTime.now();
+  DateTime _dateTime = DateTime.now();
+  String _date = '';
+  TimeOfDay _timeOfDay = TimeOfDay.now();
+  String _time = '';
+  String selectedItem = '';
+
   TextEditingController _dateController = TextEditingController();
+  TextEditingController _timeController = TextEditingController();
 
   final DateFormat _dateFormatter = DateFormat('MMM dd, yyyy');
+  final DateFormat _timeFormatter = DateFormat('Hm');
   final List<String> _priorities = ['Low', 'Medium', 'High'];
 
   _openDatePicker() async {
     final DateTime date = await showDatePicker(
       context: context,
-      initialDate: _date,
+      initialDate: _dateTime,
       firstDate: DateTime(2000),
       lastDate: DateTime(2050),
     );
-    if (date != null && date != _date) {
+    if (date != null && date != _dateTime) {
       setState(() {
-        _date = date;
+        _dateTime = date;
       });
-      _dateController.text = _dateFormatter.format(date);
+      _date = _dateFormatter.format(_dateTime);
+      print('_date datePicker : $_date');
+      _dateController.text = _date;
+      // _dateController.text = _dateFormatter.format(date);
+    }
+  }
+
+  _openTimePicker() async {
+    final TimeOfDay time = await showTimePicker(
+      context: context,
+      initialTime: _timeOfDay,
+    );
+    if (time != null && time != _timeOfDay) {
+      setState(() {
+        _timeOfDay = time;
+      });
+      _time = _timeOfDay.format(context);
+      print('_time datePicker : $_time');
+      _timeController.text = _time;
+      // _timeController.text = _timeOfDay.format(context);
     }
   }
 
   _submit() {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
+      print('_date : $_date');
       Task task = Task(
         title: _title,
         date: _date,
+        time: _time,
         priority: _priority,
       );
       if (widget.task == null) {
@@ -68,9 +96,21 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     if (widget.task != null) {
       _title = widget.task.title;
       _date = widget.task.date;
+      _time = widget.task.time;
       _priority = widget.task.priority;
     }
-    _dateController.text = _dateFormatter.format(_date);
+    _date = _dateFormatter.format(_dateTime);
+    // _dateController.text = _date;
+    _dateController.text = _dateFormatter.format(_dateTime);
+    print('_date : $_dateTime');
+    print('_date : ${_dateFormatter.format(_dateTime)}');
+
+    _time = _timeFormatter.format(_dateTime);
+    // _timeController.text = _time;
+    _timeController.text = _timeFormatter.format(_dateTime);
+    print('_time : $_dateTime');
+    print('_date : ${_timeFormatter.format(_dateTime)}');
+
     super.initState();
   }
 
@@ -87,7 +127,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: SingleChildScrollView(
+          // physics: NeverScrollableScrollPhysics(),
           child: Container(
+            width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: size40, vertical: size80),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,14 +155,25 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 Form(
                   key: _formKey,
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Padding(
                         padding: EdgeInsets.symmetric(vertical: size20),
                         child: TextFormField(
+                          minLines: 1,
+                          maxLines: 2,
                           style: TextStyle(fontSize: size18, color: colorWhite),
                           decoration: InputDecoration(
+                            icon: Icon(
+                              Icons.text_fields,
+                              color: Theme.of(context).primaryColor,
+                              size: size30,
+                            ),
                             enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(size10),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
                               borderSide: BorderSide(
                                 color: Theme.of(context).primaryColor,
                                 width: 2,
@@ -131,7 +184,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                 fontSize: size18,
                                 color: Theme.of(context).primaryColor),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(size10),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
                             ),
                           ),
                           validator: (input) => input.trim().isEmpty
@@ -144,12 +199,61 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       Padding(
                         padding: EdgeInsets.symmetric(vertical: size20),
                         child: TextFormField(
+                          minLines: 1,
+                          maxLines: 1000,
+                          style: TextStyle(
+                            fontSize: size18,
+                            color: colorWhite,
+                          ),
+                          decoration: InputDecoration(
+                            icon: Icon(
+                              Icons.subject_rounded,
+                              color: Theme.of(context).primaryColor,
+                              size: size30,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor,
+                                width: 2,
+                              ),
+                            ),
+                            labelText: 'Description',
+                            labelStyle: TextStyle(
+                                fontSize: size18,
+                                color: Theme.of(context).primaryColor),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
+                            ),
+                          ),
+                          validator: (input) => input.trim().isEmpty
+                              ? 'Please enter a task title'
+                              : null,
+                          onSaved: (input) => _title = input,
+                          initialValue: _title,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: size20),
+                        child: TextFormField(
+                          textAlign: TextAlign.center,
                           readOnly: true,
                           controller: _dateController,
                           style: TextStyle(fontSize: size18, color: colorWhite),
                           decoration: InputDecoration(
+                            icon: Icon(
+                              Icons.date_range_rounded,
+                              color: Theme.of(context).primaryColor,
+                              size: size30,
+                            ),
                             enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(size10),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
                               borderSide: BorderSide(
                                 color: Theme.of(context).primaryColor,
                                 width: 2,
@@ -160,7 +264,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                 fontSize: size18,
                                 color: Theme.of(context).primaryColor),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(size10),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
                             ),
                           ),
                           onTap: _openDatePicker,
@@ -168,13 +274,54 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(vertical: size20),
+                        child: TextFormField(
+                          textAlign: TextAlign.center,
+                          readOnly: true,
+                          controller: _timeController,
+                          style: TextStyle(fontSize: size18, color: colorWhite),
+                          decoration: InputDecoration(
+                            icon: Icon(
+                              Icons.access_time_rounded,
+                              color: Theme.of(context).primaryColor,
+                              size: size30,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor,
+                                width: 2,
+                              ),
+                            ),
+                            labelText: 'Time',
+                            labelStyle: TextStyle(
+                                fontSize: size18,
+                                color: Theme.of(context).primaryColor),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
+                            ),
+                          ),
+                          onTap: _openTimePicker,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: size20),
                         child: DropdownButtonFormField(
                           isDense: true,
                           dropdownColor: colorBlack,
-                          icon: Icon(Icons.arrow_drop_down_circle_rounded),
-                          iconSize: size22,
+                          icon: Padding(
+                            padding: EdgeInsetsDirectional.only(end: size5),
+                            child: Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              size: size30,
+                            ),
+                          ),
                           iconEnabledColor: Theme.of(context).primaryColor,
                           items: _priorities.map((String priority) {
+                            print('priority : $priority');
                             return DropdownMenuItem(
                               value: priority,
                               child: Text(
@@ -184,23 +331,43 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                   fontFamily: 'Quicksand',
                                 ),
                               ),
+                              onTap: () => _priority = priority,
                             );
                           }).toList(),
-                          style: TextStyle(fontSize: size18, color: colorWhite),
+                          style: TextStyle(
+                            fontSize: size18,
+                            color: colorWhite,
+                          ),
                           decoration: InputDecoration(
+                            icon: Icon(
+                              Icons.priority_high_rounded,
+                              color: Theme.of(context).primaryColor,
+                              size: size30,
+                            ),
                             enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(size10),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
                               borderSide: BorderSide(
-                                color: Theme.of(context).primaryColor,
+                                color: _priority == 'Low'
+                                    ? Colors.green
+                                    : _priority == 'Medium'
+                                        ? Colors.amber
+                                        : _priority == 'High'
+                                            ? Colors.red
+                                            : Colors.white,
                                 width: 2,
                               ),
                             ),
                             labelText: 'Priority',
                             labelStyle: TextStyle(
-                                fontSize: size18,
-                                color: Theme.of(context).primaryColor),
+                              fontSize: size18,
+                              color: Theme.of(context).primaryColor,
+                            ),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(size10),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
                             ),
                           ),
                           validator: (input) => _priority == null

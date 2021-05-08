@@ -1,13 +1,17 @@
 class Task {
   int id;
   String title;
-  DateTime date;
+  String description;
+  String date;
+  String time;
   String priority;
   int status;
 
   Task({
     this.title,
+    this.description,
     this.date,
+    this.time,
     this.priority,
     this.status,
   });
@@ -15,7 +19,9 @@ class Task {
   Task.withId({
     this.id,
     this.title,
+    this.description,
     this.date,
+    this.time,
     this.priority,
     this.status,
   });
@@ -26,7 +32,9 @@ class Task {
       map['id'] = id;
     }
     map['title'] = title;
-    map['date'] = date.toIso8601String();
+    map['description'] = description;
+    map['date'] = date;
+    map['time'] = time;
     map['priority'] = priority;
     map['status'] = status;
     return map;
@@ -36,7 +44,9 @@ class Task {
     return Task.withId(
       id: map['id'],
       title: map['title'],
-      date: DateTime.parse(map['date']),
+      description: map['description'],
+      date: map['date'],
+      time: map['time'],
       priority: map['priority'],
       status: map['status'],
     );

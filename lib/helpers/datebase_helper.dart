@@ -12,7 +12,9 @@ class DatabaseHelper {
   String tasksTable = 'tasks_table';
   String colId = 'id';
   String colTitle = 'title';
+  String colDescription = 'description';
   String colDate = 'date';
+  String colTime = 'time';
   String colPriority = 'priority';
   String colStatus = 'status';
 
@@ -37,7 +39,9 @@ class DatabaseHelper {
         CREATE TABLE $tasksTable(
           $colId INTEGER PRIMARY KEY AUTOINCREMENT,
           $colTitle TEXT,
+          $colDescription TEXT,
           $colDate TEXT,
+          $colTime Text,
           $colPriority TEXT,
           $colStatus INTEGER
           )
