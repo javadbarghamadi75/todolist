@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       title: 'ToDo List',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.red,
+        primarySwatch: Colors.yellow,
         unselectedWidgetColor: colorGrey300,
         fontFamily: 'Quicksand',
       ),

@@ -16,6 +16,7 @@ class AddTaskScreen extends StatefulWidget {
 class _AddTaskScreenState extends State<AddTaskScreen> {
   final _formKey = GlobalKey<FormState>();
   String _title = '';
+  String _description = '';
   String _priority;
   DateTime _dateTime = DateTime.now();
   String _date = '';
@@ -70,6 +71,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       print('_date : $_date');
       Task task = Task(
         title: _title,
+        description: _description,
         date: _date,
         time: _time,
         priority: _priority,
@@ -95,6 +97,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   void initState() {
     if (widget.task != null) {
       _title = widget.task.title;
+      _description = widget.task.description;
       _date = widget.task.date;
       _time = widget.task.time;
       _priority = widget.task.priority;
@@ -222,19 +225,20 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                             ),
                             labelText: 'Description',
                             labelStyle: TextStyle(
-                                fontSize: size18,
-                                color: Theme.of(context).primaryColor),
+                              fontSize: size18,
+                              color: Theme.of(context).primaryColor,
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.all(
                                 Radius.circular(15),
                               ),
                             ),
                           ),
-                          validator: (input) => input.trim().isEmpty
-                              ? 'Please enter a task title'
-                              : null,
-                          onSaved: (input) => _title = input,
-                          initialValue: _title,
+                          // validator: (input) => input.trim().isEmpty
+                          //     ? 'Please enter a task title'
+                          //     : null,
+                          onSaved: (input) => _description = input,
+                          initialValue: _description,
                         ),
                       ),
                       Padding(
@@ -327,7 +331,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                               child: Text(
                                 priority,
                                 style: TextStyle(
-                                  color: colorWhite,
+                                  color: priority == 'Low'
+                                      ? Colors.green
+                                      : priority == 'Medium'
+                                          ? Colors.amber
+                                          : priority == 'High'
+                                              ? Colors.red
+                                              : Theme.of(context).primaryColor,
                                   fontFamily: 'Quicksand',
                                 ),
                               ),
@@ -355,7 +365,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                         ? Colors.amber
                                         : _priority == 'High'
                                             ? Colors.red
-                                            : Colors.white,
+                                            : Theme.of(context).primaryColor,
                                 width: 2,
                               ),
                             ),
@@ -393,7 +403,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                           child: Text(
                             widget.task == null ? 'Add' : 'Update',
                             style: TextStyle(
-                              color: colorWhite,
+                              color: colorBlack,
                               fontSize: size20,
                             ),
                           ),
@@ -413,7 +423,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                 child: Text(
                                   'Delete',
                                   style: TextStyle(
-                                    color: colorWhite,
+                                    color: colorBlack,
                                     fontSize: size20,
                                   ),
                                 ),

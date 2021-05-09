@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:todolist/helpers/datebase_helper.dart';
 import 'package:todolist/models/task_model.dart';
 import 'package:todolist/res.dart';
@@ -13,6 +14,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   Future<List<Task>> _tasksList;
   final DateFormat _dateFormatter = DateFormat('MMM dd, yyyy');
+  bool isSnapshotWaiting = false;
 
   @override
   void initState() {
@@ -34,7 +36,9 @@ class _HomeState extends State<Home> {
         future: DatabaseHelper.instance.getTasksList(),
         builder:
             (BuildContext buildContext, AsyncSnapshot<List<Task>> snapshot) {
-          if (!snapshot.hasData) {
+          if (!snapshot.hasData ||
+              snapshot.connectionState == ConnectionState.waiting) {
+            isSnapshotWaiting = true;
             return Center(child: CircularProgressIndicator());
           }
 
@@ -43,69 +47,100 @@ class _HomeState extends State<Home> {
               .toList()
               .length;
 
-          return ListView.builder(
-            padding: EdgeInsets.symmetric(vertical: size80),
-            itemCount: 1 + snapshot.data.length,
-            itemBuilder: (BuildContext buildContext, int index) {
-              if (index == 0) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: size40,
-                    vertical: size20,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'My Tasks',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: size40,
-                          color: colorWhite,
+          if (snapshot.hasData ||
+              snapshot.connectionState == ConnectionState.done) {
+            isSnapshotWaiting = false;
+            return ListView.builder(
+              padding: EdgeInsets.symmetric(vertical: size80),
+              itemCount: 1 + snapshot.data.length,
+              itemBuilder: (BuildContext buildContext, int index) {
+                if (index == 0) {
+                  return Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: size40,
+                      vertical: size20,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'My Tasks',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: size40,
+                            color: colorWhite,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: size10),
-                      Text(
-                        '$completedTaskCount of ${snapshot.data.length}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: size20,
-                          color: colorGrey500,
+                        SizedBox(height: size10),
+                        Text(
+                          '$completedTaskCount of ${snapshot.data.length}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: size20,
+                            color: colorGrey500,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              }
-              return _createTask(snapshot.data[index - 1]);
-            },
+                        snapshot.data.length == 0
+                            ? Padding(
+                                padding: EdgeInsets.symmetric(vertical: size80),
+                                child: Center(
+                                  child: Lottie.asset(
+                                    'assets/lottie/home_empty_animation.json',
+                                    fit: BoxFit.fill,
+                                    repeat: true,
+                                    reverse: true,
+                                    animate: true,
+                                  ),
+                                ),
+                              )
+                            : Container(),
+                      ],
+                    ),
+                  );
+                }
+                return _createTask(snapshot.data[index - 1]);
+              },
+            );
+          }
+          return Center(
+            child: Text(
+              'Something Went Wrong...',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: colorWhite,
+                fontSize: size18,
+                decoration: TextDecoration.none,
+              ),
+            ),
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        elevation: 0,
-        backgroundColor: Theme.of(context).primaryColor,
-        icon: Icon(
-          Icons.add_rounded,
-          color: colorBlack,
-          size: size30,
-        ),
-        label: Text(
-          'New Task',
-          style: TextStyle(
-            fontSize: size18,
-            color: colorBlack,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        onPressed: () {
-          print('FloatingActionButton Clicked');
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => AddTaskScreen()),
-          ).then((value) => this.setState(() {}));
-        },
-      ),
+      floatingActionButton: isSnapshotWaiting == false
+          ? FloatingActionButton.extended(
+              elevation: 0,
+              backgroundColor: Theme.of(context).primaryColor,
+              icon: Icon(
+                Icons.add_rounded,
+                color: colorBlack,
+                size: size30,
+              ),
+              label: Text(
+                'New Task',
+                style: TextStyle(
+                  fontSize: size18,
+                  color: colorBlack,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              onPressed: () {
+                print('FloatingActionButton Clicked');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => AddTaskScreen()),
+                ).then((value) => this.setState(() {}));
+              },
+            )
+          : Container(height: 0, width: 0),
       // floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       // bottomNavigationBar: BottomAppBar(
       //   elevation: 0,
@@ -169,12 +204,20 @@ class _HomeState extends State<Home> {
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
+                        side: BorderSide(
+                          width: 2,
+                          color: task.priority == 'Low'
+                              ? lowGreen
+                              : task.priority == 'Medium'
+                                  ? mediumAmber
+                                  : highRed,
+                        ),
                       ),
                       tileColor: task.priority == 'Low'
-                          ? lowGreen
+                          ? lowGreen.withOpacity(0.8)
                           : task.priority == 'Medium'
-                              ? mediumAmber
-                              : highRed,
+                              ? mediumAmber.withOpacity(0.8)
+                              : highRed.withOpacity(0.8),
                       title: Text(
                         task.title,
                         maxLines: 2,
@@ -189,19 +232,37 @@ class _HomeState extends State<Home> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // SizedBox(height: size3),
                           Divider(color: colorGrey300),
-                          Text(
-                            '${task.description}',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              color: colorGrey300,
-                              fontSize: size15,
-                              decoration: TextDecoration.none,
-                            ),
-                          ),
+                          task.description != ''
+                              ? Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: size10, vertical: size5),
+                                  margin: EdgeInsets.symmetric(
+                                      horizontal: 0, vertical: size5),
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: task.priority == 'Low'
+                                        ? colorBlack.withOpacity(0.3)
+                                        : task.priority == 'Medium'
+                                            ? colorBlack.withOpacity(0.3)
+                                            : colorBlack.withOpacity(0.3),
+                                    borderRadius: BorderRadius.circular(size10),
+                                  ),
+                                  child: Text(
+                                    '${task.description}',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      color: colorGrey300,
+                                      fontSize: size18,
+                                      decoration: TextDecoration.none,
+                                    ),
+                                  ),
+                                )
+                              : Container(height: 0, width: 0),
                           SizedBox(height: size5),
                           Text(
-                            '${task.date}',
+                            '${task.date}  |  ${task.time}',
                             style: TextStyle(
                               fontWeight: FontWeight.w500,
                               color: colorGrey300,
@@ -280,7 +341,7 @@ class _HomeState extends State<Home> {
                         // Divider(color: colorGrey300),
                         SizedBox(height: size5),
                         Text(
-                          '${task.date}',
+                          '${task.date}  |  ${task.time}',
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
                             color: colorGrey500,
@@ -305,18 +366,16 @@ class _HomeState extends State<Home> {
                         ),
                       ],
                     ),
-                    trailing: Transform.scale(
-                      scale: 1.3,
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.delete_forever_rounded,
-                          color: colorWhite,
-                        ),
-                        onPressed: () {
-                          DatabaseHelper.instance.deleteTask(task.id);
-                          _updateTasksList();
-                        },
+                    trailing: IconButton(
+                      icon: Icon(
+                        Icons.delete_forever_rounded,
+                        color: colorWhite,
+                        size: size30,
                       ),
+                      onPressed: () {
+                        DatabaseHelper.instance.deleteTask(task.id);
+                        _updateTasksList();
+                      },
                     ),
                     onLongPress: () {
                       if (task.status == 1) {

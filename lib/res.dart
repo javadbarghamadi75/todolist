@@ -10,9 +10,23 @@ Color colorBlue300 = Color(0xff90CAF9);
 Color colorBlack = Color(0xff000000);
 Color scaffoldBackGround = Color(0xff202124);
 Color bottomAppBarBackGround = Color(0xff2F3033);
-Color lowGreen = Colors.green.withOpacity(0.4);
-Color mediumAmber = Colors.amber.withOpacity(0.4);
-Color highRed = Colors.red.withOpacity(0.4);
+Color lowGreen = Colors.greenAccent[700];
+Color mediumAmber = Colors.yellowAccent[700];
+Color highRed = Colors.redAccent[700];
+
+// Map<int, Color> color = {
+//   50: Color.fromRGBO(0, 0, 79, .1),
+//   100: Color.fromRGBO(0, 0, 232, .2),
+//   200: Color.fromRGBO(0, 0, 232, .3),
+//   300: Color.fromRGBO(0, 0, 232, .4),
+//   400: Color.fromRGBO(0, 0, 232, .5),
+//   500: Color.fromRGBO(0, 0, 232, .6),
+//   600: Color.fromRGBO(0, 0, 232, .7),
+//   700: Color.fromRGBO(0, 0, 232, .8),
+//   800: Color.fromRGBO(0, 0, 232, .9),
+//   900: Color.fromRGBO(0, 0, 232, 1),
+// };
+// MaterialColor primarySwatch = MaterialColor(0xFF0000E8, color);
 
 //size
 double size40 = 40.0;
