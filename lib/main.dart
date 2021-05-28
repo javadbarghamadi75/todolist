@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:todolist/res.dart';
 import 'package:todolist/screens/home.dart';
+import 'package:todolist/screens/main_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
         unselectedWidgetColor: colorGrey300,
         fontFamily: 'Quicksand',
       ),
-      home: Home(),
+      home: MainPage(),
     );
   }
 }

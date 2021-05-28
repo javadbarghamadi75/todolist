@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:todolist/models/subtask_model.dart';
 import 'package:todolist/models/task_model.dart';
 
 class DatabaseHelper {
@@ -10,13 +11,18 @@ class DatabaseHelper {
   DatabaseHelper._instance();
 
   String tasksTable = 'tasks_table';
-  String colId = 'id';
-  String colTitle = 'title';
-  String colDescription = 'description';
-  String colDate = 'date';
-  String colTime = 'time';
-  String colPriority = 'priority';
-  String colStatus = 'status';
+  String colTaskId = 'taskId';
+  String colTaskTitle = 'taskTitle';
+  String colTaskDescription = 'taskDescription';
+  String colTaskDate = 'taskDate';
+  String colTaskTime = 'taskTime';
+  String colTaskPriority = 'taskrPiority';
+  String colTaskStatus = 'taskStatus';
+
+  String subTasksTable = 'subTasks_table';
+  String colSubTaskId = 'subTaskId';
+  String colSubTaskTitle = 'subTaskTitle';
+  String colSubTaskStatus = 'subTaskStatus';
 
   Future<Database> get db async {
     if (_db == null) {
@@ -37,13 +43,24 @@ class DatabaseHelper {
     await db.execute(
       '''
         CREATE TABLE $tasksTable(
-          $colId INTEGER PRIMARY KEY AUTOINCREMENT,
-          $colTitle TEXT,
-          $colDescription TEXT,
-          $colDate TEXT,
-          $colTime Text,
-          $colPriority TEXT,
-          $colStatus INTEGER
+          $colTaskId INTEGER PRIMARY KEY AUTOINCREMENT,
+          $colTaskTitle TEXT,
+          $colTaskDescription TEXT,
+          $colTaskDate TEXT,
+          $colTaskTime Text,
+          $colTaskPriority TEXT,
+          $colTaskStatus INTEGER
+          )
+      ''',
+    );
+
+    await db.execute(
+      '''
+        CREATE TABLE $subTasksTable(
+          $colTaskId INTEGER,
+          $colSubTaskId INTEGER PRIMARY KEY AUTOINCREMENT,
+          $colSubTaskTitle TEXT,
+          $colSubTaskStatus INTEGER
           )
       ''',
     );
@@ -61,7 +78,7 @@ class DatabaseHelper {
     tasksMapList.forEach((taskMap) {
       tasksList.add(Task.fromMap(taskMap));
     });
-    tasksList.sort((taskA, taskB) => taskA.date.compareTo(taskB.date));
+    tasksList.sort((taskA, taskB) => taskA.taskDate.compareTo(taskB.taskDate));
     return tasksList;
   }
 
@@ -76,8 +93,8 @@ class DatabaseHelper {
     final int result = await db.update(
       tasksTable,
       task.toMap(),
-      where: '$colId = ?',
-      whereArgs: [task.id],
+      where: '$colTaskId = ?',
+      whereArgs: [task.taskId],
     );
     return result;
   }
@@ -86,7 +103,51 @@ class DatabaseHelper {
     Database db = await this.db;
     final int result = await db.delete(
       tasksTable,
-      where: '$colId = ?',
+      where: '$colTaskId = ?',
+      whereArgs: [id],
+    );
+    return result;
+  }
+
+  Future<List<Map<String, dynamic>>> getSubTasksMapList() async {
+    Database db = await this.db;
+    final List<Map<String, dynamic>> result = await db.query(subTasksTable);
+    return result;
+  }
+
+  Future<List<SubTask>> getSubTasksList() async {
+    final List<Map<String, dynamic>> subTasksMapList =
+        await getSubTasksMapList();
+    final List<SubTask> subTasksList = [];
+    subTasksMapList.forEach((subTaskMap) {
+      subTasksList.add(SubTask.fromMap(subTaskMap));
+    });
+    // subTasksList.sort((subTaskA, subTaskB) => subTaskA.subTaskDate.compareTo(subTaskB.subTaskDate));
+    return subTasksList;
+  }
+
+  Future<int> insertSubTask(SubTask subTask) async {
+    Database db = await this.db;
+    final int result = await db.insert(subTasksTable, subTask.toMap());
+    return result;
+  }
+
+  Future<int> updateSubTask(SubTask subTask) async {
+    Database db = await this.db;
+    final int result = await db.update(
+      subTasksTable,
+      subTask.toMap(),
+      where: '$colSubTaskId = ?',
+      whereArgs: [subTask.subTaskId],
+    );
+    return result;
+  }
+
+  Future<int> deleteSubTask(int id) async {
+    Database db = await this.db;
+    final int result = await db.delete(
+      subTasksTable,
+      where: '$colSubTaskId = ?',
       whereArgs: [id],
     );
     return result;

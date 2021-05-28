@@ -27,6 +27,7 @@ dependencies:
   sqflite: ^2.0.0+3
   path_provider: ^2.0.1
   lottie: ^1.0.1
+  kt_drawer_menu: ^0.0.6
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -51,6 +52,12 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/lottie/home_empty_animation.json
+    - assets/lottie/home_empty_animation1.json
+    - assets/lottie/home_empty_animation2.json
+    - assets/lottie/home_empty_animation3.json
+    - assets/lottie/home_empty_animation4.json
+    - assets/lottie/home_empty_animation5.json
+    - assets/lottie/checkBox.json
     - assets/lottie/loading_database.json
 
   #   - images/a_dot_ham.jpeg

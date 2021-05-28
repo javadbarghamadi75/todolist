@@ -1,54 +1,54 @@
 class Task {
-  int id;
-  String title;
-  String description;
-  String date;
-  String time;
-  String priority;
-  int status;
+  int taskId;
+  String taskTitle;
+  String taskDescription;
+  String taskDate;
+  String taskTime;
+  String taskrPiority;
+  int taskStatus;
 
   Task({
-    this.title,
-    this.description,
-    this.date,
-    this.time,
-    this.priority,
-    this.status,
+    this.taskTitle,
+    this.taskDescription,
+    this.taskDate,
+    this.taskTime,
+    this.taskrPiority,
+    this.taskStatus,
   });
 
   Task.withId({
-    this.id,
-    this.title,
-    this.description,
-    this.date,
-    this.time,
-    this.priority,
-    this.status,
+    this.taskId,
+    this.taskTitle,
+    this.taskDescription,
+    this.taskDate,
+    this.taskTime,
+    this.taskrPiority,
+    this.taskStatus,
   });
 
   Map<String, dynamic> toMap() {
     final map = Map<String, dynamic>();
-    if (id != null) {
-      map['id'] = id;
+    if (taskId != null) {
+      map['taskId'] = taskId;
     }
-    map['title'] = title;
-    map['description'] = description;
-    map['date'] = date;
-    map['time'] = time;
-    map['priority'] = priority;
-    map['status'] = status;
+    map['taskTitle'] = taskTitle;
+    map['taskDescription'] = taskDescription;
+    map['taskDate'] = taskDate;
+    map['taskTime'] = taskTime;
+    map['taskrPiority'] = taskrPiority;
+    map['taskStatus'] = taskStatus;
     return map;
   }
 
   factory Task.fromMap(Map<String, dynamic> map) {
     return Task.withId(
-      id: map['id'],
-      title: map['title'],
-      description: map['description'],
-      date: map['date'],
-      time: map['time'],
-      priority: map['priority'],
-      status: map['status'],
+      taskId: map['taskId'],
+      taskTitle: map['taskTitle'],
+      taskDescription: map['taskDescription'],
+      taskDate: map['taskDate'],
+      taskTime: map['taskTime'],
+      taskrPiority: map['taskrPiority'],
+      taskStatus: map['taskStatus'],
     );
   }
 }

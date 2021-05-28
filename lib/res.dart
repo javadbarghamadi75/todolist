@@ -37,6 +37,7 @@ double size80 = 80.0;
 double size10 = 10.0;
 double size13 = 13.0;
 double size5 = 5.0;
+double size8 = 8.0;
 double size18 = 18.0;
 double size22 = 22.0;
 double size60 = 60.0;

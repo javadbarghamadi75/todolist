@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:todolist/helpers/datebase_helper.dart';
+import 'package:todolist/models/subtask_model.dart';
 import 'package:todolist/models/task_model.dart';
 import 'package:todolist/res.dart';
 
@@ -26,6 +27,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   TextEditingController _dateController = TextEditingController();
   TextEditingController _timeController = TextEditingController();
+  TextEditingController _subTaskDescription = TextEditingController();
 
   final DateFormat _dateFormatter = DateFormat('MMM dd, yyyy');
   final DateFormat _timeFormatter = DateFormat('Hm');
@@ -65,23 +67,55 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     }
   }
 
+  // _subTasksList() {
+  //   return SingleChildScrollView(
+  //     child: FutureBuilder(
+  //         future: DatabaseHelper.instance.getSubTasksList(),
+  //         builder: (BuildContext buildContext,
+  //             AsyncSnapshot<List<SubTask>> snapshot) {
+  //           print(snapshot.connectionState);
+  //           if (!snapshot.hasData ||
+  //               snapshot.connectionState == ConnectionState.waiting) {
+  //             return Center(
+  //               child: CircularProgressIndicator(),
+  //             );
+  //           }
+  //           if (snapshot.connectionState == ConnectionState.done) {
+  //             print('snapshot.data.length : ${snapshot.data.length}');
+  //             return ListView.builder(
+  //                 padding: EdgeInsets.zero,
+  //                 physics: NeverScrollableScrollPhysics(),
+  //                 shrinkWrap: true,
+  //                 itemCount: 0,
+  //                 itemBuilder: (BuildContext buildContext, int index) {
+  //                   return _subTaskTile();
+  //                 });
+  //           }
+  //           return Container(
+  //             height: 0,
+  //             width: 0,
+  //           );
+  //         }),
+  //   );
+  // }
+
   _submit() {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
       print('_date : $_date');
       Task task = Task(
-        title: _title,
-        description: _description,
-        date: _date,
-        time: _time,
-        priority: _priority,
+        taskTitle: _title,
+        taskDescription: _description,
+        taskDate: _date,
+        taskTime: _time,
+        taskrPiority: _priority,
       );
       if (widget.task == null) {
-        task.status = 0;
+        task.taskStatus = 0;
         DatabaseHelper.instance.insertTask(task);
       } else {
-        task.id = widget.task.id;
-        task.status = widget.task.status;
+        task.taskId = widget.task.taskId;
+        task.taskStatus = widget.task.taskStatus;
         DatabaseHelper.instance.updateTask(task);
       }
       Navigator.pop(context, DatabaseHelper.instance.getTasksList());
@@ -89,18 +123,18 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   _delete() {
-    DatabaseHelper.instance.deleteTask(widget.task.id);
+    DatabaseHelper.instance.deleteTask(widget.task.taskId);
     Navigator.pop(context);
   }
 
   @override
   void initState() {
     if (widget.task != null) {
-      _title = widget.task.title;
-      _description = widget.task.description;
-      _date = widget.task.date;
-      _time = widget.task.time;
-      _priority = widget.task.priority;
+      _title = widget.task.taskTitle;
+      _description = widget.task.taskDescription;
+      _date = widget.task.taskDate;
+      _time = widget.task.taskTime;
+      _priority = widget.task.taskrPiority;
     }
     _date = _dateFormatter.format(_dateTime);
     // _dateController.text = _date;
@@ -114,7 +148,15 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     print('_time : $_dateTime');
     print('_date : ${_timeFormatter.format(_dateTime)}');
 
+    _updateSubTasksList();
+
     super.initState();
+  }
+
+  _updateSubTasksList() {
+    setState(() {
+      DatabaseHelper.instance.getSubTasksList();
+    });
   }
 
   @override
@@ -199,6 +241,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                           initialValue: _title,
                         ),
                       ),
+                      // _subTasksList(),
+                      // _addSubTask(),
                       Padding(
                         padding: EdgeInsets.symmetric(vertical: size20),
                         child: TextFormField(
@@ -317,7 +361,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                           isDense: true,
                           dropdownColor: colorBlack,
                           icon: Padding(
-                            padding: EdgeInsetsDirectional.only(end: size5),
+                            padding: EdgeInsetsDirectional.only(
+                              end: size5,
+                            ),
                             child: Icon(
                               Icons.keyboard_arrow_down_rounded,
                               size: size30,
@@ -441,4 +487,138 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       ),
     );
   }
+
+  // _subTaskTile() {
+  //   return Padding(
+  //     padding: EdgeInsets.symmetric(vertical: size20),
+  //     child: TextFormField(
+  //       minLines: 1,
+  //       maxLines: 1000,
+  //       style: TextStyle(
+  //         fontSize: size18,
+  //         color: colorWhite,
+  //       ),
+  //       decoration: InputDecoration(
+  //         icon: Icon(
+  //           Icons.subject_rounded,
+  //           color: Theme.of(context).primaryColor,
+  //           size: size30,
+  //         ),
+  //         // suffixIcon: Padding(
+  //         //   padding: EdgeInsetsDirectional.only(
+  //         //     end: size8,
+  //         //   ),
+  //         //   child: IconButton(
+  //         //     icon: Icon(
+  //         //       Icons.add_circle_outline_rounded,
+  //         //       // size: size30,
+  //         //     ),
+  //         //     color: Theme.of(context).primaryColor,
+  //         //     iconSize: size30,
+  //         //     highlightColor: Colors.transparent,
+  //         //     splashColor: Colors.transparent,
+  //         //     onPressed: () {},
+  //         //   ),
+  //         // ),
+  //         enabledBorder: OutlineInputBorder(
+  //           borderRadius: BorderRadius.all(
+  //             Radius.circular(15),
+  //           ),
+  //           borderSide: BorderSide(
+  //             color: Theme.of(context).primaryColor,
+  //             width: 2,
+  //           ),
+  //         ),
+  //         labelText: 'Description',
+  //         labelStyle: TextStyle(
+  //           fontSize: size18,
+  //           color: Theme.of(context).primaryColor,
+  //         ),
+  //         border: OutlineInputBorder(
+  //           borderRadius: BorderRadius.all(
+  //             Radius.circular(15),
+  //           ),
+  //         ),
+  //       ),
+  //       // validator: (input) => input.trim().isEmpty
+  //       //     ? 'Please enter a task title'
+  //       //     : null,
+  //       onSaved: (input) => _description = input,
+  //       initialValue: _description,
+  //     ),
+  //   );
+  // }
+
+//   _addSubTask() {
+//     return Padding(
+//       padding: EdgeInsets.symmetric(vertical: size20),
+//       child: TextFormField(
+//         controller: _subTaskDescription,
+//         minLines: 1,
+//         maxLines: 1000,
+//         style: TextStyle(
+//           fontSize: size18,
+//           color: colorWhite,
+//         ),
+//         decoration: InputDecoration(
+//           icon: Icon(
+//             Icons.subject_rounded,
+//             color: Theme.of(context).primaryColor,
+//             size: size30,
+//           ),
+//           suffixIcon: Padding(
+//             padding: EdgeInsetsDirectional.only(
+//               end: size8,
+//             ),
+//             child: IconButton(
+//               icon: Icon(
+//                 Icons.add_circle_outline_rounded,
+//                 // size: size30,
+//               ),
+//               color: Theme.of(context).primaryColor,
+//               iconSize: size30,
+//               highlightColor: Colors.transparent,
+//               splashColor: Colors.transparent,
+//               onPressed: () {
+//                 SubTask createdSubTask = SubTask(
+//                   subTaskTitle: _subTaskDescription.text,
+//                   subTaskStatus: 0,
+//                   // taskId: widget.task.taskId,
+//                 );
+//                 DatabaseHelper.instance.insertSubTask(createdSubTask);
+//                 _updateSubTasksList();
+//                 _subTaskDescription.text = '';
+//                 print('add btn tapped');
+//               },
+//             ),
+//           ),
+//           enabledBorder: OutlineInputBorder(
+//             borderRadius: BorderRadius.all(
+//               Radius.circular(15),
+//             ),
+//             borderSide: BorderSide(
+//               color: Theme.of(context).primaryColor,
+//               width: 2,
+//             ),
+//           ),
+//           labelText: 'Description',
+//           labelStyle: TextStyle(
+//             fontSize: size18,
+//             color: Theme.of(context).primaryColor,
+//           ),
+//           border: OutlineInputBorder(
+//             borderRadius: BorderRadius.all(
+//               Radius.circular(15),
+//             ),
+//           ),
+//         ),
+//         // validator: (input) => input.trim().isEmpty
+//         //     ? 'Please enter a task title'
+//         //     : null,
+//         onSaved: (input) => _description = input,
+//         // initialValue: _description,
+//       ),
+//     );
+//   }
+// }
 }
